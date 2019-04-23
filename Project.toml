@@ -1,0 +1,10 @@
+name = "Pitchjx.jl"
+uuid = "aacb0929-27c6-5080-af7c-e887e16e4e49"
+authors = ["prs-watch <prs-watch@yahoo.co.jp>"]
+version = "0.0.1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
