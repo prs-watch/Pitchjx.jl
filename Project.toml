@@ -1,7 +1,13 @@
-name = "Pitchjx.jl"
+name = "Pitchjx"
 uuid = "aacb0929-27c6-5080-af7c-e887e16e4e49"
 authors = ["prs-watch <prs-watch@yahoo.co.jp>"]
 version = "0.0.1"
+
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+EzXML = "8f5d6c58-4d21-5cfd-889c-e3ad7ee6a615"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
