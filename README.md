@@ -2,6 +2,11 @@
 
 Tools for extracting MLBAM PITCHf/x data.
 
+## Install
+
+```bash
+julia -e 'using Pkg; Pkg.add("Pitchjx")'
+```
 
 ## How to use
 
