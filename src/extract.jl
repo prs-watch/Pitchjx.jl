@@ -111,7 +111,7 @@ function getplayers(base, gid, date)
             teamname = player["team_abbrev"]
             push!(playerdf, [Dates.format(date, "yyyy-mm-dd"), id, firstname, lastname, teamid, teamname])
         catch
-            @warn "player tag " pitch " is not extractable."
+            @warn "player tag " player " is not extractable."
         end
     end
     return playerdf
