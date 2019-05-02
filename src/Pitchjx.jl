@@ -7,12 +7,8 @@ using EzXML
 using DataFrames
 using Dates
 
-include("httprequest.jl")
-include("extract.jl")
-
-mutable struct Info
-    result::DataFrame
-end
+include(joinpath(dirname(@__FILE__), "httprequest.jl"))
+include(joinpath(dirname(@__FILE__), "extract.jl"))
 
 """
 Scrape MLBAM pitchfx data.
@@ -23,50 +19,21 @@ Scrape MLBAM pitchfx data.
 """
 function pitchjx(start, fin=start)
     @info "Initialize: Start"
-    info = initinfo()
-    @info "Initialize: Finish!"
+    result = DataFrame()
     date = Date(start)
     findate = Date(fin)
+    @info "Initialize: Finish!"
     @info "Extract dataset: Start"
     while date <= findate
         df = extract(date)
-        info.result = vcat(info.result, df)
+        if size(result) == (0, 0)
+            result = df
+        else
+            result = vcat(result, df)
+        end
         date += Dates.Day(1)
     end
-    return info.result
-end
-
-function initinfo()
-    return Info(
-        DataFrame(
-            date=String[],
-            pitcherid=String[],
-            pitcher_teamid=String[],
-            pitcher_firstname=String[],
-            pitcher_lastname=String[],
-            pitcher_teamname=String[],
-            pitcherthrow=String[],
-            batterid=String[],
-            batter_teamid=String[],
-            batter_firstname=String[],
-            batter_lastname=String[],
-            batter_teamname=String[],
-            batterstand=String[],
-            eventdesc=String[],
-            pitchresult=String[],
-            x=String[],
-            y=String[],
-            px=String[],
-            pz=String[],
-            sztop=String[],
-            szbottom=String[],
-            pitchtype=String[],
-            startspeed=String[],
-            endspeed=String[],
-            spindir=String[],
-            spinrate=String[]
-        )
-    )
+    return result
 end
 
 end
