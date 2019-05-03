@@ -7,8 +7,7 @@ using EzXML
 using DataFrames
 using Dates
 
-include(joinpath(dirname(@__FILE__), "httprequest.jl"))
-include(joinpath(dirname(@__FILE__), "extract.jl"))
+include(joinpath(dirname(@__FILE__), "extractor.jl"))
 
 """
 Scrape MLBAM pitchfx data.
@@ -33,6 +32,7 @@ function pitchjx(start, fin=start)
         end
         date += Dates.Day(1)
     end
+    @info "Extract dataset: Finish!"
     return result
 end
 

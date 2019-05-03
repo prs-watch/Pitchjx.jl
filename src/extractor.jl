@@ -1,3 +1,4 @@
+using HTTP
 using EzXML
 using DataFrames
 using Dates
@@ -89,6 +90,24 @@ function extract(date)
         end
     end
     return result
+end
+
+function gethtml(url)
+    r = HTTP.get(url)
+    if 200 <= r.status < 300
+        return root(parsehtml(String(r.body)))
+    else
+        error("Page is not accessable.")
+    end
+end
+
+function getxml(url)
+    r = HTTP.get(url)
+    if 200 <= r.status < 300
+        return root(parsexml(String(r.body)))
+    else
+        error("Page is not accessable.")
+    end
 end
 
 function getplayers(base, gid, date)
