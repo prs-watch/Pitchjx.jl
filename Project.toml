@@ -11,7 +11,7 @@ HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 ProfileView = "c46f51b8-102a-5cf2-8d2c-8597cb0e0da7"
 
 [compat]
-DataFrames = "0.18.1"
+DataFrames = ">=0.17.1"
 EzXML = "0.9.1"
 HTTP = "0.8.0"
 julia = ">= 0.7"
