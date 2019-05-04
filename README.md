@@ -1,4 +1,4 @@
-# Pitchjx.jl
+![pitchjx](./pitchjx.png)
 
 Tools for extracting MLBAM PITCHf/x data.
 
