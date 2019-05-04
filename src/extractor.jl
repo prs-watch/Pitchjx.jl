@@ -165,7 +165,7 @@ function getpitches(base, gid, date)
         pitcherthrow = atbat["p_throws"]
         batterstand = atbat["stand"]
         eventdesc = atbat["des"]
-        for pitch in findall("//pitch", atbat)
+        for pitch in findall("./pitch", atbat)
             try
                 pitchresult = pitch["des"]
                 x = pitch["x"]
