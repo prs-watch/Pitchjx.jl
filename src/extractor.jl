@@ -5,32 +5,34 @@ using Dates
 
 function extract(date)
     result = DataFrame(
-        date=String[],
-        pitcherid=String[],
-        pitcher_teamid=String[],
-        pitcher_firstname=String[],
-        pitcher_lastname=String[],
-        pitcher_teamname=String[],
-        pitcherthrow=String[],
-        batterid=String[],
-        batter_teamid=String[],
-        batter_firstname=String[],
-        batter_lastname=String[],
-        batter_teamname=String[],
-        batterstand=String[],
-        eventdesc=String[],
-        pitchresult=String[],
-        x=String[],
-        y=String[],
-        px=String[],
-        pz=String[],
-        sztop=String[],
-        szbottom=String[],
-        pitchtype=String[],
-        startspeed=String[],
-        endspeed=String[],
-        spindir=String[],
-        spinrate=String[]
+        date = String[],
+        pitcherid = String[],
+        pitcher_teamid = String[],
+        pitcher_firstname = String[],
+        pitcher_lastname = String[],
+        pitcher_teamname = String[],
+        pitcherthrow = String[],
+        batterid = String[],
+        batter_teamid = String[],
+        batter_firstname = String[],
+        batter_lastname = String[],
+        batter_teamname = String[],
+        batterstand = String[],
+        eventdesc = String[],
+        pitchresult = String[],
+        x = String[],
+        y = String[],
+        px = String[],
+        pz = String[],
+        zone = String[],
+        sztop = String[],
+        szbottom = String[],
+        pitchtype = String[],
+        startspeed = String[],
+        endspeed = String[],
+        spindir = String[],
+        spinrate = String[],
+        nasty = String[]
     )
     year = Dates.year(date)
     month = lpad(Dates.month(date), 2, "0")
@@ -77,13 +79,15 @@ function extract(date)
                     :y,
                     :px,
                     :pz,
+                    :zone,
                     :sztop,
                     :szbottom,
                     :pitchtype,
                     :startspeed,
                     :endspeed,
                     :spindir,
-                    :spinrate
+                    :spinrate,
+                    :nasty
                 ]
             ])
             @info "Process dataset: " date "/" litext ": Finish!"
@@ -149,13 +153,15 @@ function getpitches(base, gid, date)
         y = String[],
         px = String[],
         pz = String[],
+        zone = String[],
         sztop = String[],
         szbottom = String[],
         pitchtype = String[],
         startspeed = String[],
         endspeed = String[],
         spindir = String[],
-        spinrate = String[]
+        spinrate = String[],
+        nasty = String[]
     )
     url = base * "/" * gid * "inning/inning_all.xml"
     pitches = getxml(url)
@@ -172,6 +178,7 @@ function getpitches(base, gid, date)
                 y = pitch["y"]
                 px = pitch["px"]
                 pz = pitch["pz"]
+                zone = pitch["zone"]
                 sztop = pitch["sz_top"]
                 szbottom = pitch["sz_bot"]
                 pitchtype = pitch["pitch_type"]
@@ -179,6 +186,7 @@ function getpitches(base, gid, date)
                 endspeed = pitch["end_speed"]
                 spindir = pitch["spin_dir"]
                 spinrate = pitch["spin_rate"]
+                nasty = pitch["nasty"]
                 push!(pitchdf, [
                     Dates.format(date, "yyyy-mm-dd"),
                     pitcherid,
@@ -191,13 +199,15 @@ function getpitches(base, gid, date)
                     y,
                     px,
                     pz,
+                    zone,
                     sztop,
                     szbottom,
                     pitchtype,
                     startspeed,
                     endspeed,
                     spindir,
-                    spinrate
+                    spinrate,
+                    nasty
                     ]
                 )
             catch
