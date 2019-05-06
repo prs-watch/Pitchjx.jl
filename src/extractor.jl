@@ -24,6 +24,8 @@ function extract(date)
         y = String[],
         px = String[],
         pz = String[],
+        pfxx = String[],
+        pfxz = String[],
         zone = String[],
         sztop = String[],
         szbottom = String[],
@@ -79,6 +81,8 @@ function extract(date)
                     :y,
                     :px,
                     :pz,
+                    :pfxx,
+                    :pfxz,
                     :zone,
                     :sztop,
                     :szbottom,
@@ -153,6 +157,8 @@ function getpitches(base, gid, date)
         y = String[],
         px = String[],
         pz = String[],
+        pfxx = String[],
+        pfxz = String[],
         zone = String[],
         sztop = String[],
         szbottom = String[],
@@ -178,6 +184,8 @@ function getpitches(base, gid, date)
                 y = pitch["y"]
                 px = pitch["px"]
                 pz = pitch["pz"]
+                pfxx = pitch["pfx_x"]
+                pfxz = pitch["pfx_z"]
                 zone = pitch["zone"]
                 sztop = pitch["sz_top"]
                 szbottom = pitch["sz_bot"]
@@ -199,6 +207,8 @@ function getpitches(base, gid, date)
                     y,
                     px,
                     pz,
+                    pfxx,
+                    pfxz,
                     zone,
                     sztop,
                     szbottom,
