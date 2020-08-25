@@ -1,229 +1,124 @@
-using HTTP
-using EzXML
-using DataFrames
-using Dates
+using HTTP, DataFrames, Dates, MLBStatsAPI
 
-function extract(date)
+
+function extract(params)
     result = DataFrame(
         date = String[],
-        pitcherid = String[],
-        pitcher_teamid = String[],
+        pitcherid = Int64[],
+        pitcher_teamid = Int64[],
         pitcher_firstname = String[],
         pitcher_lastname = String[],
         pitcher_teamname = String[],
         pitcherthrow = String[],
-        batterid = String[],
-        batter_teamid = String[],
+        batterid = Int64[],
+        batter_teamid = Int64[],
         batter_firstname = String[],
         batter_lastname = String[],
         batter_teamname = String[],
         batterstand = String[],
         eventdesc = String[],
         pitchresult = String[],
-        x = String[],
-        y = String[],
-        px = String[],
-        pz = String[],
-        pfxx = String[],
-        pfxz = String[],
-        zone = String[],
-        sztop = String[],
-        szbottom = String[],
+        x = Float64[],
+        y = Float64[],
+        px = Float64[],
+        pz = Float64[],
+        pfxx = Float64[],
+        pfxz = Float64[],
+        zone = Int64[],
+        sztop = Float64[],
+        szbottom = Float64[],
         pitchtype = String[],
-        startspeed = String[],
-        endspeed = String[],
-        spindir = String[],
-        spinrate = String[],
-        nasty = String[]
+        startspeed = Float64[],
+        endspeed = Float64[],
+        spindir = Float64[],
+        spinrate = Float64[],
+        nasty = Float64[]
     )
-    year = Dates.year(date)
-    month = lpad(Dates.month(date), 2, "0")
-    day = lpad(Dates.day(date), 2, "0")
-    base = "https://gd2.mlb.com/components/game/mlb/year_$year/month_$month/day_$day"
-    gidlist = gethtml(base)
-    for li in findall("//li/a/text()",gidlist)
-        litext = strip(li.content)
-        if occursin(r"gid_*", litext)
-            @info "Process dataset: " date "/" litext ": Start"
-            playerdf = getplayers(base, litext, date)
-            pitchdf = getpitches(base, litext, date)
-            processdf = join(pitchdf, playerdf, on=(:pitcherid, :id), kind=:inner, makeunique=true)
-            df = join(processdf, playerdf, on=(:batterid, :id), kind=:inner, makeunique=true)
-            df = rename(df, [
-                    :firstname => :pitcher_firstname,
-                    :lastname => :pitcher_lastname,
-                    :teamname => :pitcher_teamname,
-                    :teamid => :pitcher_teamid,
-                    :firstname_1 => :batter_firstname,
-                    :lastname_1 => :batter_lastname,
-                    :teamname_1 => :batter_teamname,
-                    :teamid_1 => :batter_teamid,
-                ]
+    schedule = executeapi("schedule", params)
+    for date in schedule["dates"]
+        games = date["games"]
+        for game in games
+            gameparams = Dict(
+                "gamePk" => game["gamePk"]
             )
-            result = vcat(result, df[
-                [
-                    :date,
-                    :pitcherid,
-                    :pitcher_teamid,
-                    :pitcher_firstname,
-                    :pitcher_lastname,
-                    :pitcher_teamname,
-                    :pitcherthrow,
-                    :batterid,
-                    :batter_teamid,
-                    :batter_firstname,
-                    :batter_lastname,
-                    :batter_teamname,
-                    :batterstand,
-                    :eventdesc,
-                    :pitchresult,
-                    :x,
-                    :y,
-                    :px,
-                    :pz,
-                    :pfxx,
-                    :pfxz,
-                    :zone,
-                    :sztop,
-                    :szbottom,
-                    :pitchtype,
-                    :startspeed,
-                    :endspeed,
-                    :spindir,
-                    :spinrate,
-                    :nasty
-                ]
-            ])
-            @info "Process dataset: " date "/" litext ": Finish!"
-        end
-    end
-    return result
-end
-
-function gethtml(url)
-    r = HTTP.get(url)
-    if 200 <= r.status < 300
-        return root(parsehtml(String(r.body)))
-    else
-        error("Page is not accessable.")
-    end
-end
-
-function getxml(url)
-    r = HTTP.get(url)
-    if 200 <= r.status < 300
-        return root(parsexml(String(r.body)))
-    else
-        error("Page is not accessable.")
-    end
-end
-
-function getplayers(base, gid, date)
-    playerdf = DataFrame(
-        date = String[],
-        id = String[],
-        firstname = String[],
-        lastname = String[],
-        teamid = String[],
-        teamname = String[]
-    )
-    url = base * "/" * gid * "players.xml"
-    players = getxml(url)
-    for player in findall("//player", players)
-        try
-            id = player["id"]
-            firstname = player["first"]
-            lastname = player["last"]
-            teamid = player["team_id"]
-            teamname = player["team_abbrev"]
-            push!(playerdf, [Dates.format(date, "yyyy-mm-dd"), id, firstname, lastname, teamid, teamname])
-        catch
-            @warn "player tag " player " is not extractable."
-        end
-    end
-    return playerdf
-end
-
-function getpitches(base, gid, date)
-    pitchdf = DataFrame(
-        date = String[],
-        pitcherid = String[],
-        batterid = String[],
-        pitcherthrow = String[],
-        batterstand = String[],
-        eventdesc = String[],
-        pitchresult = String[],
-        x = String[],
-        y = String[],
-        px = String[],
-        pz = String[],
-        pfxx = String[],
-        pfxz = String[],
-        zone = String[],
-        sztop = String[],
-        szbottom = String[],
-        pitchtype = String[],
-        startspeed = String[],
-        endspeed = String[],
-        spindir = String[],
-        spinrate = String[],
-        nasty = String[]
-    )
-    url = base * "/" * gid * "inning/inning_all.xml"
-    pitches = getxml(url)
-    for atbat in findall("//atbat", pitches)
-        pitcherid = atbat["pitcher"]
-        batterid = atbat["batter"]
-        pitcherthrow = atbat["p_throws"]
-        batterstand = atbat["stand"]
-        eventdesc = atbat["des"]
-        for pitch in findall("./pitch", atbat)
-            try
-                pitchresult = pitch["des"]
-                x = pitch["x"]
-                y = pitch["y"]
-                px = pitch["px"]
-                pz = pitch["pz"]
-                pfxx = pitch["pfx_x"]
-                pfxz = pitch["pfx_z"]
-                zone = pitch["zone"]
-                sztop = pitch["sz_top"]
-                szbottom = pitch["sz_bot"]
-                pitchtype = pitch["pitch_type"]
-                startspeed = pitch["start_speed"]
-                endspeed = pitch["end_speed"]
-                spindir = pitch["spin_dir"]
-                spinrate = pitch["spin_rate"]
-                nasty = pitch["nasty"]
-                push!(pitchdf, [
-                    Dates.format(date, "yyyy-mm-dd"),
-                    pitcherid,
-                    batterid,
-                    pitcherthrow,
-                    batterstand,
-                    eventdesc,
-                    pitchresult,
-                    x,
-                    y,
-                    px,
-                    pz,
-                    pfxx,
-                    pfxz,
-                    zone,
-                    sztop,
-                    szbottom,
-                    pitchtype,
-                    startspeed,
-                    endspeed,
-                    spindir,
-                    spinrate,
-                    nasty
-                    ]
-                )
-            catch
-               @warn "pitch tag " pitch " is not extractable."
+            feed = executeapi("game", gameparams)
+            gamedate = split(feed["metaData"]["timeStamp"], "_")[1]
+            roster = feed["gameData"]["players"]
+            plays = feed["liveData"]["plays"]["allPlays"]
+            for play in plays
+                pitcherid = play["matchup"]["pitcher"]["id"]
+                pitcherteamid = play["about"]["halfInning"] == "top" ? feed["gameData"]["teams"]["home"]["id"] : feed["gameData"]["teams"]["away"]["id"]
+                pitcherteamname = play["about"]["halfInning"] == "top" ? feed["gameData"]["teams"]["home"]["name"] : feed["gameData"]["teams"]["away"]["name"]
+                pitcherfn = roster["ID" * string(pitcherid)]["firstName"]
+                pitcherln = roster["ID" * string(pitcherid)]["lastName"]
+                pitcherthrow = play["matchup"]["pitchHand"]["code"]
+                batterid = play["matchup"]["batter"]["id"]
+                batterteamid = play["about"]["halfInning"] == "top" ? feed["gameData"]["teams"]["away"]["id"] : feed["gameData"]["teams"]["home"]["id"]
+                batterteamname = play["about"]["halfInning"] == "top" ? feed["gameData"]["teams"]["away"]["name"] : feed["gameData"]["teams"]["home"]["name"]
+                batterfn = roster["ID" * string(batterid)]["firstName"]
+                batterln = roster["ID" * string(batterid)]["lastName"]
+                batterstand = play["matchup"]["batSide"]["code"]
+                eventdesc = play["result"]["description"]
+                events = play["playEvents"]
+                for event in events
+                    pitchresult = event["details"]["description"]
+                    if haskey(event, "pitchData")
+                        try
+                            x = event["pitchData"]["coordinates"]["x"]
+                            y = event["pitchData"]["coordinates"]["y"]
+                            px = event["pitchData"]["coordinates"]["pX"]
+                            pz = event["pitchData"]["coordinates"]["pZ"]
+                            pfxx = event["pitchData"]["coordinates"]["pfxX"]
+                            pfxz = event["pitchData"]["coordinates"]["pfxZ"]
+                            zone = event["pitchData"]["zone"]
+                            sztop = event["pitchData"]["strikeZoneTop"]
+                            szbottom = event["pitchData"]["strikeZoneBottom"]
+                            pitchtype = event["details"]["type"]["code"]
+                            startspeed = event["pitchData"]["startSpeed"]
+                            endspeed = event["pitchData"]["endSpeed"]
+                            spinrate = haskey(event["pitchData"]["breaks"], "spinRate")
+                            spindir = event["pitchData"]["breaks"]["spinDirection"]
+                            nasty = event["pitchData"]["nastyFactor"]
+                            push!(result, [
+                                gamedate,
+                                pitcherid,
+                                pitcherteamid,
+                                pitcherfn,
+                                pitcherln,
+                                pitcherteamname,
+                                pitcherthrow,
+                                batterid,
+                                batterteamid,
+                                batterfn,
+                                batterln,
+                                batterteamname,
+                                batterstand,
+                                eventdesc,
+                                pitchresult,
+                                x,
+                                y,
+                                px,
+                                pz,
+                                pfxx,
+                                pfxz,
+                                zone,
+                                sztop,
+                                szbottom,
+                                pitchtype,
+                                startspeed,
+                                endspeed,
+                                spinrate,
+                                spindir,
+                                nasty
+                            ])
+                        catch
+                            @warn "At least one column data cannot be extracted. This row will be skipped from result dataframe."
+                            continue
+                        end
+                    end
+                end
             end
         end
     end
-    return pitchdf
+    return result
 end
