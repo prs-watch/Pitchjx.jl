@@ -102,9 +102,9 @@ uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
 [[MLBStatsAPI]]
 deps = ["HTTP", "JSON"]
-git-tree-sha1 = "22d09d053fc0109abdf2325f71a3667536b2e8a3"
+git-tree-sha1 = "45ed3bffd27b05a59bb03236b4c690beaa0f78e5"
 uuid = "42ebdba7-407d-44c0-9113-87bc03bc22d1"
-version = "0.0.1"
+version = "0.0.2"
 
 [[Markdown]]
 deps = ["Base64"]
