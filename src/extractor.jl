@@ -37,9 +37,9 @@ function extract(params)
     schedule = schedulemlb(params)
     for date in schedule["dates"]
         games = date["games"]
-        for game in games
+        for g in games
             gameparams = Dict(
-                "gamePk" => game["gamePk"]
+                "gamePk" => g["gamePk"]
             )
             feed = game(gameparams)
             gamedate = split(feed["metaData"]["timeStamp"], "_")[1]
