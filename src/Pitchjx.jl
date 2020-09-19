@@ -7,7 +7,7 @@ using DataFrames, Dates
 include("extractor.jl")
 
 """
-Scrape MLBAM pitchfx data.
+Scrape pitching data.
 
 # How to use
 
