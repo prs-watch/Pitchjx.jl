@@ -23,10 +23,27 @@ data = pitchjx("2018-10-20")
 
 ### Extract Multiple dates' pitching data
 
+This is recommended for getting short range dates' data.
+
 ```julia
 using Pitchjx
 
 data = pitchjx("2018-10-20", "2018-10-22")
+```
+
+### Extract Multople dates' pitching data with multiprocessing
+
+This is recommended for getting long range dates' data (faster than previous way).
+
+```julia
+using Distributed
+@everywhere using Pitchjx
+
+Distributed.addprocs(2)
+
+dates = ["2018-07-01", "2018-07-02", "2018-07-03", "2018-07-04"]
+# get datas as DataFrame's array
+result = pmap(d -> pitchjx(d), dates)
 ```
 
 ## Reference
