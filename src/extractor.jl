@@ -61,6 +61,11 @@ function extract(params)
                 eventdesc = play["result"]["description"]
                 events = play["playEvents"]
                 for event in events
+                    ispitch = event["isPitch"]
+                    if !ispitch
+                        @warn "This row will be skipped from result dataframe due to non-pitch record."
+                        continue
+                    end
                     pitchresult = event["details"]["description"]
                     if haskey(event, "pitchData")
                         try
@@ -76,9 +81,9 @@ function extract(params)
                             pitchtype = event["details"]["type"]["code"]
                             startspeed = event["pitchData"]["startSpeed"]
                             endspeed = event["pitchData"]["endSpeed"]
-                            spinrate = haskey(event["pitchData"]["breaks"], "spinRate")
+                            spinrate = event["pitchData"]["breaks"]["spinRate"]
                             spindir = event["pitchData"]["breaks"]["spinDirection"]
-                            nasty = event["pitchData"]["nastyFactor"]
+                            nasty = 0
                             push!(result, [
                                 gamedate,
                                 pitcherid,
